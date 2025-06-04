@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:vualtwear_mobile_app/src/components/Onboarding/animated_wrapper.dart';
 import 'package:vualtwear_mobile_app/src/components/Onboarding/pages.dart';
 import 'package:vualtwear_mobile_app/src/screens/Home/screens/home_screen.dart';
+import 'package:vualtwear_mobile_app/src/utils/shared_preferences.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onPressed;
@@ -32,6 +33,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         bottomButtonChild: Text("Continuar"),
         bottomButtonColor: CupertinoColors.activeBlue,
         onPressedOnLastPage: () {
+          sharedPrefs.openOnBoarding = true;
+
           Navigator.of(
             context,
           ).pushReplacement(CupertinoPageRoute(builder: (_) => HomeScreen()));

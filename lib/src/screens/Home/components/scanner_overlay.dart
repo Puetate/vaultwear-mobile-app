@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:vualtwear_mobile_app/src/utils/app_layout.dart';
 
@@ -10,27 +11,39 @@ class ScannerOverlay extends StatelessWidget {
     return Stack(
       children: [
         // Fondo con hueco transparente
-        Positioned.fill(child: CustomPaint(painter: ScannerOverlayPainter())),
+        // Pintura del fondo oscuro con hueco
+        CustomPaint(size: size, painter: ScannerOverlayPainter()),
 
-        // Ícono informativo sobre el recuadro
-        Positioned(
-          top: size.height * 0.5,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset('assets/images/rumi.png', width: 120, height: 120),
-                const SizedBox(height: 16),
-                const Text(
-                  "Apunta al código QR dentro del recuadro",
+        // Contenido superpuesto al CustomPaint
+        Positioned.fill(
+          child: Column(
+            children: [
+              const SizedBox(height: 80), // Espacio superior
+              Swing(
+                infinite: true,
+                duration: const Duration(milliseconds: 2000),
+                child: Image.asset(
+                  'assets/images/rumi.png',
+                  width: size.width * 0.7,
+                ),
+              ),
+              const Spacer(),
+              Flash(
+                infinite: true,
+                duration: Duration(milliseconds: 9000),
+                child: const Text(
+                  "Mueva el buscador sobre un código QR",
                   style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontFamily: 'Poppins',
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 100), // Espacio inferior
+            ],
           ),
         ),
       ],
@@ -48,7 +61,7 @@ class ScannerOverlayPainter extends CustomPainter {
 
     final borderPaint =
         Paint()
-          ..color = Colors.white
+          ..color = Colors.tealAccent
           ..strokeWidth = 4
           ..style = PaintingStyle.stroke;
 
