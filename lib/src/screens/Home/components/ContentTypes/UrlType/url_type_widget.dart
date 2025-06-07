@@ -34,7 +34,7 @@ class _UrlTypeWidgetState extends State<UrlTypeWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.05),
+      backgroundColor: Colors.black.withValues(alpha: 0.5),
       body: Center(
         child: _isLoading
             ? const Column(

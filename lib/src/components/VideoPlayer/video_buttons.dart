@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:vualtwear_mobile_app/src/domain/entities/order_content.dart';
-import 'package:vualtwear_mobile_app/src/utils/human_formats.dart';
 
 class VideoButtons extends StatelessWidget {
   final OrderContent content;
@@ -27,6 +26,7 @@ class _CustomIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodySmall;
     return Column(
       children: [
         IconButton(
@@ -34,7 +34,8 @@ class _CustomIconButton extends StatelessWidget {
           icon: Icon(iconData, color: color),
           iconSize: 30,
         ),
-        Text(HumanFormats.humanReadableNumber(value.toDouble())),
+        Text("Compartir", style: style),
+        // Text(HumanFormats.humanReadableNumber(value.toDouble())),
       ],
     );
   }

@@ -1,5 +1,5 @@
 
-import 'package:vualtwear_mobile_app/src/domain/models/error/error_message.dart';
+import 'package:vualtwear_mobile_app/src/domain/infrastructure/models/error/error_message.dart';
 
 class ResponseResult<T> {
   final T? data;

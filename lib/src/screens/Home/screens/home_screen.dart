@@ -7,17 +7,41 @@ import 'package:vualtwear_mobile_app/src/screens/Content/screens/content_screen.
 import 'package:vualtwear_mobile_app/src/screens/Home/components/scanner_overlay.dart';
 import 'package:vualtwear_mobile_app/src/screens/Home/view_model/home_viewmodel.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  late MobileScannerController scannerController;
+
+  @override
+  void initState() {
+    super.initState();
+    scannerController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.normal,
+      facing: CameraFacing.back,
+      formats: [BarcodeFormat.qrCode],
+    );
+  }
+
+
+  @override
+  void dispose() {
+    scannerController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     HomeViewModel homeViewModel = context.watch<HomeViewModel>();
     return Scaffold(
       body: MobileScanner(
-        controller: MobileScannerController(
-          detectionSpeed: DetectionSpeed.normal,
-        ),
+        controller: scannerController,
         onDetect: (capture) {
           final List<Barcode> barcodes = capture.barcodes;
           String detailCode = extractOrderDetailCode(

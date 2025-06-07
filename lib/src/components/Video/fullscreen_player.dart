@@ -1,6 +1,7 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 import 'package:vualtwear_mobile_app/src/components/Video/video_background.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:vualtwear_mobile_app/src/utils/utils.dart';
 
 class FullscreenPlayer extends StatefulWidget {
@@ -18,70 +19,79 @@ class FullscreenPlayer extends StatefulWidget {
 }
 
 class _FullscreenPlayerState extends State<FullscreenPlayer> {
-  late VideoPlayerController controller;
-  bool isPlaying = false;
+  late YoutubePlayerController _controller;
+  bool isPlaying = true;
 
   @override
   void initState() {
     super.initState();
-    // controller = VideoPlayerController.networkUrl(widget.urlVideo)
-    //   ..initialize().then((_) {
-    //     setState(() {});
-    //   });
+    final videoId = YoutubePlayer.convertUrlToId(widget.urlVideo);
+    _controller = YoutubePlayerController(
+      initialVideoId: videoId ?? '',
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        loop: true,
+        hideControls: true,
+        disableDragSeek: true,
+        hideThumbnail: true,
+        enableCaption: false,
+        showLiveFullscreenButton: false,
+      ),
+    );
+  }
 
-    controller =
-        VideoPlayerController.networkUrl(
-            Uri.parse(
-              'https://videos.pexels.com/video-files/4058084/4058084-uhd_1440_2732_25fps.mp4',
-            ),
-          )
-          ..setVolume(0)
-          ..setLooping(true)
-          ..play()
-          ..initialize().then((_) {
-            setState(() {});
-          });
+  void _togglePlayPause() {
+    setState(() {
+      if (isPlaying) {
+        _controller.pause();
+      } else {
+        _controller.play();
+      }
+      isPlaying = !isPlaying;
+    });
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return controller.value.isInitialized
-        ? FutureBuilder(
-          future: controller.initialize(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              );
-            }
-            return GestureDetector(
-              onTap: () {
-                if (controller.value.isPlaying) {
-                  controller.pause();
-                  return;
-                }
-                controller.play();
-              },
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: Stack(
-                  children: [
-                    VideoPlayer(controller),
-                    VideoBackground(stops: const [0.8, 1.0]),
-                    Positioned(bottom: 50, left: 20, child: Center()),
-                  ],
-                ),
+    return YoutubePlayerBuilder(
+      player: YoutubePlayer(
+        controller: _controller,
+        progressIndicatorColor: Colors.white,
+        bottomActions: const [],
+      ),
+      builder: (context, player) {
+        return GestureDetector(
+          onTap: _togglePlayPause,
+          child: Stack(
+            children: [
+              Positioned.fill(child: player),              
+              VideoBackground(stops: const [0.8, 1.0]),
+
+              Positioned(
+                bottom: 50,
+                left: 20,
+                child: VideoCaption(caption: widget.caption),
               ),
-            );
-          },
-        )
-        : Center(child: CircularProgressIndicator());
+              // Puedes mostrar un ícono de pausa/reproducción si quieres feedback visual
+              if (!isPlaying)
+                const Center(
+                  child: Icon(Icons.pause, size: 80, color: Colors.white70),
+                ).fadeOut(
+                  duration: const Duration(milliseconds: 800),
+                  animate: !isPlaying,
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -92,16 +102,13 @@ class VideoCaption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = AppLayout.getSize(context);
-    final tileStyle = Theme.of(context).textTheme.titleMedium;
+    final titleStyle = Theme.of(context).textTheme.titleLarge;
+
     return SizedBox(
       width: size.width * 0.6,
       child: Text(
         caption,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
+        style: titleStyle,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),

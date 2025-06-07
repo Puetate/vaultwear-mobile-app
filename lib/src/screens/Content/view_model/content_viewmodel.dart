@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:vualtwear_mobile_app/src/domain/entities/order_content.dart';
-import 'package:vualtwear_mobile_app/src/domain/models/dto/local_order_content_model.dart';
-import 'package:vualtwear_mobile_app/src/domain/models/error/error_message.dart';
-import 'package:vualtwear_mobile_app/src/screens/Home/repository/home_repository.dart';
-import 'package:vualtwear_mobile_app/src/shared/data/local_video_post.dart';
+import 'package:vualtwear_mobile_app/src/domain/infrastructure/models/error/error_message.dart';
+import 'package:vualtwear_mobile_app/src/domain/repositories/order_content_repository.dart';
 
 class ContentViewmodel extends ChangeNotifier {
-  final HomeRepository _orderRepository = HomeRepository();
+  final OrderContentRepository _orderContentRepository;
+
   bool _loading = false;
 
   List<OrderContent> _contentList = [];
   ErrorMessage? _errorMessage;
+
+  ContentViewmodel({required OrderContentRepository orderContentRepository})
+    : _orderContentRepository = orderContentRepository;
 
   bool get loading => _loading;
   List<OrderContent> get contentList => _contentList;
@@ -30,17 +32,21 @@ class ContentViewmodel extends ChangeNotifier {
     _errorMessage = errorMessage;
   }
 
-  Future<void> loadNextPage() async {
-    await Future.delayed(const Duration(seconds: 2));
-    final List<OrderContent> newVideos =
-        videoPosts
-            .map(
-              (video) =>
-                  LocalOrderContentModel.fromJson(video).toOrderContentEntity(),
-            )
-            .toList();
+  Future<void> loadNextPage(String orderDetailCode) async {
 
-    setContentList(newVideos);
+    setLoading(true);
+    setErrorMessage(null);
+
+    final res = await _orderContentRepository
+        .getOrderContentByPage(orderDetailCode, 1);
+
+    if (res.hasError) {
+      setErrorMessage(res.error!);
+      setLoading(false);
+      return;
+    }
+
+    setContentList(res.data);
     setLoading(false);
   }
 }

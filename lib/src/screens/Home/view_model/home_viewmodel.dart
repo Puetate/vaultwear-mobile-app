@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:vualtwear_mobile_app/src/domain/models/dto/local_order_content_model.dart';
-import 'package:vualtwear_mobile_app/src/domain/models/error/error_message.dart';
+import 'package:vualtwear_mobile_app/src/domain/infrastructure/models/dto/order_content_model.dart';
+import 'package:vualtwear_mobile_app/src/domain/infrastructure/models/error/error_message.dart';
 import 'package:vualtwear_mobile_app/src/screens/Home/repository/home_repository.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final HomeRepository _orderRepository = HomeRepository();
   bool _loading = false;
 
-  LocalOrderContentModel? _orderContentModel;
+  OrderContentModel? _orderContentModel;
   ErrorMessage? _errorMessage;
 
   bool get loading => _loading;
-  LocalOrderContentModel? get orderContentModel => _orderContentModel;
+  OrderContentModel? get orderContentModel => _orderContentModel;
   ErrorMessage? get errorMessage => _errorMessage;
 
   setLoading(bool loading) async {
@@ -19,7 +19,7 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  setOrderContentModel(LocalOrderContentModel? orderContentModel) {
+  setOrderContentModel(OrderContentModel? orderContentModel) {
     _orderContentModel = orderContentModel;
   }
 
@@ -36,7 +36,7 @@ class HomeViewModel extends ChangeNotifier {
       setLoading(false);
       return false;
     }
-    LocalOrderContentModel orderContent = LocalOrderContentModel.fromJson(
+    OrderContentModel orderContent = OrderContentModel.fromJson(
       res.data,
     );
     // OrderContent orderContent = OrderContent(

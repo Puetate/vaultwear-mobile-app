@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:vualtwear_mobile_app/src/domain/api/response_result.dart';
 import 'package:vualtwear_mobile_app/src/domain/api/dio.config.dart';
-import 'package:vualtwear_mobile_app/src/domain/models/error/error_message.dart';
+import 'package:vualtwear_mobile_app/src/domain/infrastructure/models/error/error_message.dart';
 import 'package:vualtwear_mobile_app/src/utils/constants.dart';
 
 class Api {
