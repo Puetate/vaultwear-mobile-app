@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:vualtwear_mobile_app/src/screens/Content/screens/content_screen.dart';
+import 'package:vualtwear_mobile_app/src/screens/Content/view_model/content_viewmodel.dart';
 import 'package:vualtwear_mobile_app/src/screens/Home/components/scanner_overlay.dart';
 import 'package:vualtwear_mobile_app/src/screens/Home/view_model/home_viewmodel.dart';
 
@@ -15,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   late MobileScannerController scannerController;
 
   @override
@@ -28,34 +28,34 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   @override
   void dispose() {
     scannerController.dispose();
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    HomeViewModel homeViewModel = context.watch<HomeViewModel>();
+    ContentViewmodel contentViewmodel = context.read<ContentViewmodel>();
     return Scaffold(
       body: MobileScanner(
         controller: scannerController,
         onDetect: (capture) {
           final List<Barcode> barcodes = capture.barcodes;
-          String detailCode = extractOrderDetailCode(
-            barcodes.first.rawValue.toString(),
+          final String rawValue = barcodes.first.rawValue ?? '';
+          if (rawValue.isEmpty) return;
+
+          final detailCode = extractOrderDetailCode(rawValue);
+          if (detailCode.isEmpty) return;
+          scannerController.stop();
+          log("QR $rawValue");
+
+          contentViewmodel.loadNextPage(detailCode);
+
+          if (!mounted) return;
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const ContentScreen()),
           );
-          log("QR ${barcodes.first.rawValue.toString()}");
-          homeViewModel.getOrderContent(detailCode);
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => ContentScreen()));
-          // if (homeViewModel.orderContentModel != null) {
-          // } else {
-          //   log("No se pudo obtener el contenido del pedido");
-          // }
         },
         overlayBuilder: (_, __) => const ScannerOverlay(),
 

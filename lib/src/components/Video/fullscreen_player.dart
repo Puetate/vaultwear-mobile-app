@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:vualtwear_mobile_app/src/components/Video/custom_video_progress_bar.dart';
 import 'package:vualtwear_mobile_app/src/components/Video/video_background.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:vualtwear_mobile_app/src/utils/utils.dart';
@@ -7,11 +8,15 @@ import 'package:vualtwear_mobile_app/src/utils/utils.dart';
 class FullscreenPlayer extends StatefulWidget {
   final String urlVideo;
   final String caption;
+  final VoidCallback? onSwipeUp;
+  final VoidCallback? onSwipeDown;
 
   const FullscreenPlayer({
     super.key,
     required this.urlVideo,
     required this.caption,
+    this.onSwipeUp,
+    this.onSwipeDown,
   });
 
   @override
@@ -21,6 +26,9 @@ class FullscreenPlayer extends StatefulWidget {
 class _FullscreenPlayerState extends State<FullscreenPlayer> {
   late YoutubePlayerController _controller;
   bool isPlaying = true;
+
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
 
   @override
   void initState() {
@@ -39,6 +47,14 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
         showLiveFullscreenButton: false,
       ),
     );
+    _controller.addListener(() {
+      if (mounted) {
+        setState(() {
+          _position = _controller.value.position;
+          _duration = _controller.value.metaData.duration;
+        });
+      }
+    });
   }
 
   void _togglePlayPause() {
@@ -63,23 +79,31 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
     return YoutubePlayerBuilder(
       player: YoutubePlayer(
         controller: _controller,
-        progressIndicatorColor: Colors.white,
+        progressIndicatorColor: const Color.fromARGB(255, 243, 31, 31),
         bottomActions: const [],
       ),
       builder: (context, player) {
         return GestureDetector(
           onTap: _togglePlayPause,
+          onVerticalDragUpdate: (details) {
+            onDragUpdate(details);
+          },
+          behavior: HitTestBehavior.opaque,
           child: Stack(
             children: [
-              Positioned.fill(child: player),              
+              Positioned.fill(child: player),
               VideoBackground(stops: const [0.8, 1.0]),
-
               Positioned(
                 bottom: 50,
                 left: 20,
                 child: VideoCaption(caption: widget.caption),
               ),
-              // Puedes mostrar un ícono de pausa/reproducción si quieres feedback visual
+              CustomVideoProgressBar(
+                controller: _controller,
+                position: _position,
+                duration: _duration,
+              ),
+
               if (!isPlaying)
                 const Center(
                   child: Icon(Icons.pause, size: 80, color: Colors.white70),
@@ -92,6 +116,14 @@ class _FullscreenPlayerState extends State<FullscreenPlayer> {
         );
       },
     );
+  }
+
+  void onDragUpdate(DragUpdateDetails details) {
+    if (details.primaryDelta! < -15) {
+      widget.onSwipeUp?.call();
+    } else if (details.primaryDelta! > 15) {
+      widget.onSwipeDown?.call();
+    }
   }
 }
 

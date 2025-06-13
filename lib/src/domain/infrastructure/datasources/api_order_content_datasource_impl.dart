@@ -5,30 +5,26 @@ import 'package:vualtwear_mobile_app/src/domain/datasources/order_content_dataso
 import 'package:vualtwear_mobile_app/src/domain/entities/order_content.dart';
 import 'package:vualtwear_mobile_app/src/domain/infrastructure/models/dto/order_content_model.dart';
 
-class LocalOrderContentDatasourceImpl implements OrderContentDatasource {
+class ApiOrderContentDatasourceImpl implements OrderContentDatasource {
   @override
   Future<ResponseResult<dynamic>> getOrderContentByPage(
     String orderDetailCode,
     int page,
   ) async {
-    ResponseResult res = await Api.get(
-      "${EndPoints.getOrderContent}/$orderDetailCode",
-    );
+    var res = await Api.get("${EndPoints.getOrderContent}/$orderDetailCode");
 
     if (res.error != null) {
-      return ResponseResult(data: null, error: res.error);
+      return ResponseResult(data: null, error: res.error, hasError: true);
     }
 
     final List<OrderContent> newVideos =
-        res.data
+        (res.data as List)
             .map(
               (content) =>
-                  OrderContentModel.fromJson(
-                    content,
-                  ).toOrderContentEntity(),
+                  OrderContentModel.fromJson(content).toOrderContentEntity(),
             )
             .toList();
 
-    return ResponseResult(data: newVideos, error: null);
+    return ResponseResult(data: newVideos, error: null, hasError: false);
   }
 }
